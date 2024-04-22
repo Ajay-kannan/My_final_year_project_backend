@@ -52,6 +52,7 @@ print(result.content)
 #         return None
 
 
+
 # # The RecursiveCharacterTextSplitter takes a large text and splits it based on a specified chunk size.
 # def get_chunks(text):
 #     text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)

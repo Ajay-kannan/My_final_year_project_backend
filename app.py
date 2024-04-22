@@ -1,66 +1,29 @@
 from flask import Flask, request, jsonify 
 from flask_cors import CORS
-import tensorflow as tf
-from tensorflow.keras.models import load_model
-from PIL import Image
-import numpy as np
-
+import predict
+import chatbot
+import re
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
-
-def load_model_and_preprocess(target_size=(224, 224)):
-    """Loads the image classification model and defines a preprocessing function.
-
-    Args:
-        model_path (str, optional): Path to the saved model file (default: "model.h5").
-        target_size (tuple, optional): Target image size for resizing (default: (224, 224)).
-
-    Returns:
-        tensorflow.keras.models.Model: The loaded image classification model.
-        function: A function that preprocesses an image for model inference.
-    """
-    model_path = "C:/Users/Ajay kannan/Desktop/reactprogram/practice/plant_disease_prediction_model.h5"
-    model = load_model(model_path)
-
-    def preprocess_image(image_path):
-        """Preprocesses an image for model prediction."""
-        img = Image.open(image_path)
-        img = img.resize(target_size)  # Resize to match model input
-        img_array = np.array(img)
-        # Normalize pixel values (adjust based on your model's normalization)
-        img_array = img_array / 255.0
-        img_batch = np.expand_dims(img_array, axis=0)  # Add batch dimension
-        return img_batch
-
-    return model, preprocess_image
-
-model, preprocess_image = load_model_and_preprocess()
+CORS(app) 
 
 @app.route("/predict", methods=["POST"])
 def predict_image_class():
-    """API endpoint to receive image data and predict class."""
+
 
     if request.method == "POST":
-        if "image" not in request.files or "string_data" not in request.form:
-            return jsonify({"error": "Missing image or string data in request."}), 400
+        print(request.files)
+        if "image" not in request.files :
+            return jsonify({"error": "Missing image in request."}), 400
 
-        # Get image and string data from request
         image = request.files["image"]
-        string_data = request.form["string_data"]
-
         try:
-            # Preprocess the image
-            preprocessed_image = preprocess_image(image.filename)
-
-            # Make prediction using the model
-            predictions = model.predict(preprocessed_image)
-            predicted_class = np.argmax(predictions[0])  # Get index of most likely class
-
-            # (Optional) Perform additional processing based on string_data
-            # if relevant to your prediction logic
-
-            return jsonify({"predicted_class": predicted_class, "string_data": string_data})
+            predicted_class_name = predict.predict_class(image)
+            
+            print("\n ------------------------------- \n")
+            print(predicted_class_name)
+            print("\n ------------------------------- \n")
+            return jsonify({"predicted_class": predicted_class_name})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -70,39 +33,62 @@ def predict_image_class():
 @app.route("/")
 def homepage():
     
-    return jsonify("hello world")
+    return jsonify("hello")
 
 
-
-
-
-# @app.route('/ask', methods=['POST'])
-# def ask_question():
-#     try:
-#         # Get the user_question from the request body
-#         data = request.get_json()
-#         user_question = data.get('user_question')
+@app.route('/ask', methods=['POST'])
+def ask_question():
+    try:
         
-#         # Perform some processing or logic to get the answer
-#         # For demonstration purposes, let's just echo back the question
-#         print("\n ------------------------------- \n")
-#         print(f"question : {user_question}" )
-#         print("\n ------------------------------- \n")
+        data = request.get_json()
+        user_question = data.get('user_question')
         
-#         answer = get_answer(user_question)
+        print("\n ------------------------------- \n")
+        print(f"question : {user_question}" )
+        print("\n ------------------------------- \n")
         
-#         # Return the answer as JSON response
-#         return jsonify({'answer': answer}), 200
-#     except Exception as e:
-#         # Log the exception for debugging
-#         print(f"An error occurred: {e}")
+        answer = chatbot.generate_response(user_question)
+        print(answer)
+        # Return the answer as JSON response
+        return jsonify(answer), 200
+    except Exception as e:
+        # Log the exception for debugging
+        print(f"An error occurred: {e}")
         
-#         # Return error response if an exception occurs
-#         return jsonify({'error': 'Internal Server Error'}), 500
+        # Return error response if an exception occurs
+        return jsonify({'error': 'Internal Server Error'}), 500
+    
+
+@app.route('/disease-plant', methods=['POST'])
+def process_string():
+    try:
+        # Get the input string from the request
+        input_string = request.json.get('input_string')
+
+        # Process the input string (for example, you can manipulate it or perform some operation)
+
+        prompt = "plant is affected by "+ input_string +" find remedies."
+        answer = chatbot.generate_response(prompt)
+        
+        print(answer["messageContent"])
+
+        # Create a JSON response with the processed string
+        response = {'processed_string': answer["messageContent"]}
+
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)  # Enable debug mode to see detailed error messages
 
+
+
+# pattern = r'__(.*)$'
+#             match = re.search(pattern, predicted_class_name)
+#             if match:
+#                 predicted_class_name = match.group(1)
+#             predicted_class_name = string_data + '__' + predicted_class_name
 
 
 

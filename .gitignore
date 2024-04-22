@@ -9,6 +9,11 @@ DataSet/
 faiss_index/
 text_files/
 web_scrapping/
+database/
+database_web/
 
 # Python bytecode cache
 __pycache__/
+
+chat_bot.ipynb
+class_indices.json
