@@ -6,7 +6,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 import chromadb
 import uuid
-import shutil
 
 load_dotenv()
 
@@ -53,6 +52,7 @@ def get_search_results_text(search_term):
                 videos_links.append(result["contentUrl"])
 
     
+    
     for result in text_results[:10]:
         try:
             response = requests.get(result['url'])
@@ -68,9 +68,9 @@ def get_search_results_text(search_term):
                 if(count > 3):
                     break
             else:
-                print("No body element found on this page.")
+                print("\n")
         except Exception as e:
-            print(f"Error occurred while processing {result['url']}: {e}")
+            print("\n")
     return scrape_text , url_links , image_links , videos_links
 
 

@@ -2,15 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import predict
 import chatbot
-import re
 
 app = Flask(__name__)
 CORS(app) 
 
 @app.route("/predict", methods=["POST"])
 def predict_image_class():
-
-
     if request.method == "POST":
         print(request.files)
         if "image" not in request.files :

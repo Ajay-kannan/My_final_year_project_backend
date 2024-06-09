@@ -28,6 +28,7 @@ def load_model_and_preprocess(target_size=(224, 224)):
 
 
 
+
 def  predict_class(image):
     model , preprocess_image= load_model_and_preprocess()
     preprocessed_image = preprocess_image(image)

@@ -71,13 +71,18 @@ def generate_response(question):
         context = context + doc_results[idx]["text"] + "\n\n"
 
     context_from_web = websearch.web_search(question)
-
-    # print("context_from_web :", context_from_web["context_text"])
-    # print("\n")
-    # print("context from db", context)
+    print("--------------------------------")
+    print("context_from_web :")
+    print("--------------------------------")
+    print(context_from_web["context_text"])
+    print("\n\n")
+    print("--------------------------------")
+    print("context from db :")
+    print("--------------------------------")
+    print(context)
     context = context_from_web["context_text"]+ "\n\n" + context
 
-    print(context)
+    # print(context)
 
     
     prompt_template = """ 
